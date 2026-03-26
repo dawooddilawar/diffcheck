@@ -1,5 +1,4 @@
-import test from "node:test";
-import assert from "node:assert/strict";
+import { expect, test } from "vitest";
 
 import { extractIssues } from "../src/extractIssues";
 
@@ -13,10 +12,10 @@ test("extractIssues: extracts from ```json fenced block", () => {
   ].join("\n");
 
   const result = extractIssues(raw);
-  assert.equal(result.issues.length, 1);
-  assert.equal(result.issues[0]?.type, "LOGIC");
-  assert.equal(result.issues[0]?.confidence, 85);
-  assert.equal(result.issues[0]?.line, 12);
+  expect(result.issues.length).toBe(1);
+  expect(result.issues[0]?.type).toBe("LOGIC");
+  expect(result.issues[0]?.confidence).toBe(85);
+  expect(result.issues[0]?.line).toBe(12);
 });
 
 test("extractIssues: extracts embedded JSON object without fences", () => {
@@ -29,15 +28,15 @@ test("extractIssues: extracts embedded JSON object without fences", () => {
   ].join("\n");
 
   const result = extractIssues(raw);
-  assert.equal(result.issues.length, 1);
-  assert.equal(result.issues[0]?.type, "SECURITY");
-  assert.equal(result.issues[0]?.confidence, 90);
-  assert.equal(result.issues[0]?.line, 7);
+  expect(result.issues.length).toBe(1);
+  expect(result.issues[0]?.type).toBe("SECURITY");
+  expect(result.issues[0]?.confidence).toBe(90);
+  expect(result.issues[0]?.line).toBe(7);
 });
 
 test("extractIssues: returns empty when no issues payload exists", () => {
   const raw = "no json here";
   const result = extractIssues(raw);
-  assert.deepEqual(result, { issues: [] });
+  expect(result).toEqual({ issues: [] });
 });
 

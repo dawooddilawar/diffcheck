@@ -1,5 +1,4 @@
-import test from "node:test";
-import assert from "node:assert/strict";
+import { expect, test } from "vitest";
 
 import { renderMarkdown } from "../src/renderMarkdown";
 import type { AggregatedReview } from "../src/types";
@@ -17,7 +16,7 @@ test("renderMarkdown: returns empty string when there are no issues (default pol
     },
   };
 
-  assert.equal(renderMarkdown(data), "");
+  expect(renderMarkdown(data)).toBe("");
 });
 
 test("renderMarkdown: renders issues with impact/recommendation/evidence", () => {
@@ -46,13 +45,13 @@ test("renderMarkdown: renders issues with impact/recommendation/evidence", () =>
   };
 
   const md = renderMarkdown(data);
-  assert.match(md, /### AI code review/);
-  assert.match(md, /Found \*\*1\*\* issue/);
-  assert.match(md, /\*\*\[SECURITY\]\[HIGH\] SQL injection risk\*\*/);
-  assert.match(md, /`src\/a\.ts:12`/);
-  assert.match(md, /Impact: Attacker can read data/);
-  assert.match(md, /Recommendation: Use parameterized queries/);
-  assert.match(md, /Evidence: User input concatenated/);
+  expect(md).toMatch(/### AI code review/);
+  expect(md).toMatch(/Found \*\*1\*\* issue/);
+  expect(md).toMatch(/\*\*\[SECURITY\]\[HIGH\] SQL injection risk\*\*/);
+  expect(md).toMatch(/`src\/a\.ts:12`/);
+  expect(md).toMatch(/Impact: Attacker can read data/);
+  expect(md).toMatch(/Recommendation: Use parameterized queries/);
+  expect(md).toMatch(/Evidence: User input concatenated/);
 });
 
 test("renderMarkdown: can render a short 'no issues' comment when enabled", () => {
@@ -69,7 +68,7 @@ test("renderMarkdown: can render a short 'no issues' comment when enabled", () =
   };
 
   const md = renderMarkdown(data, { renderEmpty: true });
-  assert.match(md, /No issues found/);
-  assert.match(md, /threshold: 80%/);
+  expect(md).toMatch(/No issues found/);
+  expect(md).toMatch(/threshold: 80%/);
 });
 

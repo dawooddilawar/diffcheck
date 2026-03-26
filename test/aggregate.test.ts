@@ -1,5 +1,4 @@
-import test from "node:test";
-import assert from "node:assert/strict";
+import { expect, test } from "vitest";
 
 import { aggregateIssues, deduplicateIssues } from "../src/aggregate";
 import type { Issue } from "../src/types";
@@ -19,19 +18,18 @@ test("aggregateIssues: merges, filters by confidence, sorts by severity, compute
 
   const result = aggregateIssues([issuesA, issuesB], { confidenceThreshold: 80 });
 
-  assert.equal(result.stats.total_candidates, 5);
-  assert.equal(result.stats.filtered_count, 3);
-  assert.equal(result.stats.confidence_threshold, 80);
-  assert.equal(result.stats.duplicates_removed, 0);
+  expect(result.stats.total_candidates).toBe(5);
+  expect(result.stats.filtered_count).toBe(3);
+  expect(result.stats.confidence_threshold).toBe(80);
+  expect(result.stats.duplicates_removed).toBe(0);
 
   // Sorted by severity: HIGH -> MEDIUM -> LOW
-  assert.deepEqual(
-    result.issues.map((i) => `${i.severity}:${i.title}`),
+  expect(result.issues.map((i) => `${i.severity}:${i.title}`)).toEqual(
     ["HIGH:s1", "MEDIUM:l1", "LOW:t1"],
   );
 
-  assert.deepEqual(result.stats.by_severity, { high: 1, medium: 1, low: 1 });
-  assert.deepEqual(result.stats.by_type, {
+  expect(result.stats.by_severity).toEqual({ high: 1, medium: 1, low: 1 });
+  expect(result.stats.by_type).toEqual({
     correctness: 1,
     design: 0,
     security: 1,
@@ -51,14 +49,14 @@ test("deduplicateIssues: merges same file:line + same title", () => {
 
   const { deduplicated, removed } = deduplicateIssues(issues);
 
-  assert.equal(deduplicated.length, 1);
-  assert.equal(removed, 1);
-  assert.equal(deduplicated[0]!.severity, "HIGH");
-  assert.equal(deduplicated[0]!.confidence, 90);
-  assert.equal(deduplicated[0]!.evidence, "longer evidence text");
-  assert.ok(deduplicated[0]!.reviewers!.includes("security"));
-  assert.ok(deduplicated[0]!.reviewers!.includes("logic"));
-  assert.equal(deduplicated[0]!.coLocated, undefined);
+  expect(deduplicated.length).toBe(1);
+  expect(removed).toBe(1);
+  expect(deduplicated[0]!.severity).toBe("HIGH");
+  expect(deduplicated[0]!.confidence).toBe(90);
+  expect(deduplicated[0]!.evidence).toBe("longer evidence text");
+  expect(deduplicated[0]!.reviewers!.includes("security")).toBeTruthy();
+  expect(deduplicated[0]!.reviewers!.includes("logic")).toBeTruthy();
+  expect(deduplicated[0]!.coLocated).toBe(undefined);
 });
 
 test("deduplicateIssues: keeps separate findings for same file:line but different titles", () => {
@@ -69,9 +67,9 @@ test("deduplicateIssues: keeps separate findings for same file:line but differen
 
   const { deduplicated, removed } = deduplicateIssues(issues);
 
-  assert.equal(deduplicated.length, 2);
-  assert.equal(removed, 0);
-  assert.ok(deduplicated.every((d) => d.coLocated === true));
+  expect(deduplicated.length).toBe(2);
+  expect(removed).toBe(0);
+  expect(deduplicated.every((d) => d.coLocated === true)).toBeTruthy();
 });
 
 test("deduplicateIssues: keeps separate findings for same title but different locations", () => {
@@ -82,8 +80,8 @@ test("deduplicateIssues: keeps separate findings for same title but different lo
 
   const { deduplicated, removed } = deduplicateIssues(issues);
 
-  assert.equal(deduplicated.length, 2);
-  assert.equal(removed, 0);
+  expect(deduplicated.length).toBe(2);
+  expect(removed).toBe(0);
 });
 
 test("deduplicateIssues: uses highest severity among merged findings", () => {
@@ -95,10 +93,10 @@ test("deduplicateIssues: uses highest severity among merged findings", () => {
 
   const { deduplicated, removed } = deduplicateIssues(issues);
 
-  assert.equal(deduplicated.length, 1);
-  assert.equal(removed, 2);
-  assert.equal(deduplicated[0]!.severity, "HIGH");
-  assert.equal(deduplicated[0]!.confidence, 95);
+  expect(deduplicated.length).toBe(1);
+  expect(removed).toBe(2);
+  expect(deduplicated[0]!.severity).toBe("HIGH");
+  expect(deduplicated[0]!.confidence).toBe(95);
 });
 
 test("deduplicateIssues: merges conflicting recommendations with attribution", () => {
@@ -109,10 +107,10 @@ test("deduplicateIssues: merges conflicting recommendations with attribution", (
 
   const { deduplicated } = deduplicateIssues(issues);
 
-  assert.equal(deduplicated.length, 1);
-  assert.ok(deduplicated[0]!.recommendation!.includes("Use JWT tokens"));
-  assert.ok(deduplicated[0]!.recommendation!.includes("[Alternative]"));
-  assert.ok(deduplicated[0]!.recommendation!.includes("Add middleware check"));
+  expect(deduplicated.length).toBe(1);
+  expect(deduplicated[0]!.recommendation!.includes("Use JWT tokens")).toBeTruthy();
+  expect(deduplicated[0]!.recommendation!.includes("[Alternative]")).toBeTruthy();
+  expect(deduplicated[0]!.recommendation!.includes("Add middleware check")).toBeTruthy();
 });
 
 test("deduplicateIssues: title matching is case-insensitive and whitespace-collapsed", () => {
@@ -123,8 +121,8 @@ test("deduplicateIssues: title matching is case-insensitive and whitespace-colla
 
   const { deduplicated, removed } = deduplicateIssues(issues);
 
-  assert.equal(deduplicated.length, 1);
-  assert.equal(removed, 1);
+  expect(deduplicated.length).toBe(1);
+  expect(removed).toBe(1);
 });
 
 test("deduplicateIssues: issues without file are passed through unchanged", () => {
@@ -135,8 +133,8 @@ test("deduplicateIssues: issues without file are passed through unchanged", () =
 
   const { deduplicated, removed } = deduplicateIssues(issues);
 
-  assert.equal(deduplicated.length, 2);
-  assert.equal(removed, 0);
+  expect(deduplicated.length).toBe(2);
+  expect(removed).toBe(0);
 });
 
 test("deduplicateIssues: line as string matches line as number", () => {
@@ -147,8 +145,8 @@ test("deduplicateIssues: line as string matches line as number", () => {
 
   const { deduplicated, removed } = deduplicateIssues(issues);
 
-  assert.equal(deduplicated.length, 1);
-  assert.equal(removed, 1);
+  expect(deduplicated.length).toBe(1);
+  expect(removed).toBe(1);
 });
 
 test("aggregateIssues: end-to-end deduplication integrated with confidence filter", () => {
@@ -163,10 +161,10 @@ test("aggregateIssues: end-to-end deduplication integrated with confidence filte
 
   const result = aggregateIssues([group1, group2], { confidenceThreshold: 80 });
 
-  assert.equal(result.stats.total_candidates, 4);
-  assert.equal(result.stats.duplicates_removed, 1);
+  expect(result.stats.total_candidates).toBe(4);
+  expect(result.stats.duplicates_removed).toBe(1);
   // After dedup: SQL injection (merged, conf 90), Bad naming (conf 85), N+1 query (conf 95)
   // All three pass the 80% threshold
-  assert.equal(result.stats.filtered_count, 3);
+  expect(result.stats.filtered_count).toBe(3);
 });
 

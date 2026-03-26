@@ -1,5 +1,4 @@
-import test from "node:test";
-import assert from "node:assert/strict";
+import { expect, test } from "vitest";
 
 import { getDiff, hasLocalChanges, isGitRepo, parseDiffStats, type GitExec } from "../src/git";
 
@@ -25,12 +24,12 @@ const FAIL = { ok: false, stdout: "" };
 
 test("isGitRepo: returns true for a git repository", () => {
   const { exec } = makeExec({ "rev-parse --git-dir": GIT_DIR });
-  assert.equal(isGitRepo("/repo", exec), true);
+  expect(isGitRepo("/repo", exec)).toBe(true);
 });
 
 test("isGitRepo: returns false when not a git repo", () => {
   const { exec } = makeExec({ "rev-parse --git-dir": FAIL });
-  assert.equal(isGitRepo("/not-repo", exec), false);
+  expect(isGitRepo("/not-repo", exec)).toBe(false);
 });
 
 // ─── hasLocalChanges ─────────────────────────────────────────
@@ -39,14 +38,14 @@ test("hasLocalChanges: detects changes via git status --porcelain", () => {
   const { exec } = makeExec({
     "status --porcelain": { ok: true, stdout: "M  src/foo.ts\n?? newfile.ts\n" },
   });
-  assert.equal(hasLocalChanges("/repo", exec), true);
+  expect(hasLocalChanges("/repo", exec)).toBe(true);
 });
 
 test("hasLocalChanges: returns false when working tree is clean", () => {
   const { exec } = makeExec({
     "status --porcelain": EMPTY,
   });
-  assert.equal(hasLocalChanges("/repo", exec), false);
+  expect(hasLocalChanges("/repo", exec)).toBe(false);
 });
 
 // ─── getDiff: default mode — combines branch and local ───────
@@ -62,10 +61,10 @@ test("getDiff: combined mode when both branch and local changes exist", () => {
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "combined");
-  assert.match(result.diff, /\+branch change/);
-  assert.match(result.diff, /\+local change/);
-  assert.ok(calls.includes("diff develop...HEAD -U99999"), "should fetch branch diff");
+  expect(result.mode).toBe("combined");
+  expect(result.diff).toMatch(/\+branch change/);
+  expect(result.diff).toMatch(/\+local change/);
+  expect(calls.includes("diff develop...HEAD -U99999"), "should fetch branch diff").toBeTruthy();
 });
 
 test("getDiff: local mode when only local changes exist (no branch diff)", () => {
@@ -79,8 +78,8 @@ test("getDiff: local mode when only local changes exist (no branch diff)", () =>
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "local");
-  assert.match(result.diff, /\+staged content/);
+  expect(result.mode).toBe("local");
+  expect(result.diff).toMatch(/\+staged content/);
 });
 
 test("getDiff: local mode with unstaged changes only (no branch diff)", () => {
@@ -94,8 +93,8 @@ test("getDiff: local mode with unstaged changes only (no branch diff)", () => {
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "local");
-  assert.match(result.diff, /\+unstaged content/);
+  expect(result.mode).toBe("local");
+  expect(result.diff).toMatch(/\+unstaged content/);
 });
 
 test("getDiff: local mode combines staged and unstaged changes (no branch diff)", () => {
@@ -109,9 +108,9 @@ test("getDiff: local mode combines staged and unstaged changes (no branch diff)"
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "local");
-  assert.match(result.diff, /\+staged/);
-  assert.match(result.diff, /\+unstaged/);
+  expect(result.mode).toBe("local");
+  expect(result.diff).toMatch(/\+staged/);
+  expect(result.diff).toMatch(/\+unstaged/);
 });
 
 test("getDiff: local mode includes untracked files (no branch diff)", () => {
@@ -126,8 +125,8 @@ test("getDiff: local mode includes untracked files (no branch diff)", () => {
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "local");
-  assert.match(result.diff, /\+new file content/);
+  expect(result.mode).toBe("local");
+  expect(result.diff).toMatch(/\+new file content/);
 });
 
 test("getDiff: skips binary untracked files", () => {
@@ -141,8 +140,8 @@ test("getDiff: skips binary untracked files", () => {
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "none");
-  assert.equal(result.diff, "");
+  expect(result.mode).toBe("none");
+  expect(result.diff).toBe("");
 });
 
 test("getDiff: combined mode with staged, unstaged, untracked, and branch changes", () => {
@@ -157,11 +156,11 @@ test("getDiff: combined mode with staged, unstaged, untracked, and branch change
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "combined");
-  assert.match(result.diff, /\+branch change/);
-  assert.match(result.diff, /\+staged/);
-  assert.match(result.diff, /\+unstaged/);
-  assert.match(result.diff, /\+brand-new/);
+  expect(result.mode).toBe("combined");
+  expect(result.diff).toMatch(/\+branch change/);
+  expect(result.diff).toMatch(/\+staged/);
+  expect(result.diff).toMatch(/\+unstaged/);
+  expect(result.diff).toMatch(/\+brand-new/);
 });
 
 // ─── getDiff: branch mode — three-dot diff ───────────────────
@@ -174,10 +173,10 @@ test("getDiff: branch mode when no local changes", () => {
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "branch");
-  assert.match(result.diff, /\+branch change/);
-  assert.ok(calls.includes("diff develop...HEAD -U99999"));
-  assert.ok(!calls.some((c) => c.includes("develop..HEAD")), "should NOT use two-dot diff");
+  expect(result.mode).toBe("branch");
+  expect(result.diff).toMatch(/\+branch change/);
+  expect(calls.includes("diff develop...HEAD -U99999")).toBeTruthy();
+  expect(!calls.some((c) => c.includes("develop..HEAD")), "should NOT use two-dot diff").toBeTruthy();
 });
 
 // ─── getDiff: no changes at all ──────────────────────────────
@@ -190,8 +189,8 @@ test("getDiff: returns mode 'none' when no local or branch changes", () => {
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "none");
-  assert.equal(result.diff, "");
+  expect(result.mode).toBe("none");
+  expect(result.diff).toBe("");
 });
 
 // ─── getDiff: --local-only flag ──────────────────────────────
@@ -207,10 +206,10 @@ test("getDiff: localOnly returns only local changes, skips branch diff", () => {
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop", localOnly: true }, exec);
-  assert.equal(result.mode, "local");
-  assert.match(result.diff, /\+local change/);
-  assert.ok(!result.diff.includes("+branch change"), "should not include branch diff");
-  assert.ok(!calls.includes("diff develop...HEAD -U99999"), "should not fetch branch diff");
+  expect(result.mode).toBe("local");
+  expect(result.diff).toMatch(/\+local change/);
+  expect(!result.diff.includes("+branch change"), "should not include branch diff").toBeTruthy();
+  expect(!calls.includes("diff develop...HEAD -U99999"), "should not fetch branch diff").toBeTruthy();
 });
 
 test("getDiff: localOnly returns 'none' when no local changes exist", () => {
@@ -221,16 +220,16 @@ test("getDiff: localOnly returns 'none' when no local changes exist", () => {
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop", localOnly: true }, exec);
-  assert.equal(result.mode, "none");
-  assert.equal(result.diff, "");
-  assert.ok(!calls.includes("diff develop...HEAD -U99999"), "should not fetch branch diff");
+  expect(result.mode).toBe("none");
+  expect(result.diff).toBe("");
+  expect(!calls.includes("diff develop...HEAD -U99999"), "should not fetch branch diff").toBeTruthy();
 });
 
 // ─── getDiff: throws when not a git repo ─────────────────────
 
 test("getDiff: throws when not in a git repository", () => {
   const { exec } = makeExec({ "rev-parse --git-dir": FAIL });
-  assert.throws(() => getDiff({ cwd: "/not-repo", baseBranch: "develop" }, exec), /Not in a git repository/);
+  expect(() => getDiff({ cwd: "/not-repo", baseBranch: "develop" }, exec)).toThrow(/Not in a git repository/);
 });
 
 // ─── getDiff: uses full file context ─────────────────────────
@@ -248,7 +247,7 @@ test("getDiff: passes -U99999 for full file context in all diff commands", () =>
   getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
   const diffCalls = calls.filter((c) => c.startsWith("diff"));
   for (const call of diffCalls) {
-    assert.ok(call.includes("-U99999"), `expected -U99999 in: ${call}`);
+    expect(call.includes("-U99999"), `expected -U99999 in: ${call}`).toBeTruthy();
   }
 });
 
@@ -267,8 +266,8 @@ test("getDiff: skips untracked files larger than 100KB", () => {
   });
 
   const result = getDiff({ cwd: "/repo", baseBranch: "develop" }, exec);
-  assert.equal(result.mode, "none");
-  assert.equal(result.diff, "");
+  expect(result.mode).toBe("none");
+  expect(result.diff).toBe("");
 });
 
 // ─── parseDiffStats ──────────────────────────────────────────
@@ -292,13 +291,13 @@ test("parseDiffStats: extracts file names and change counts from unified diff", 
   ].join("\n");
 
   const stats = parseDiffStats(diff);
-  assert.equal(stats.length, 2);
-  assert.equal(stats[0].file, "src/foo.ts");
-  assert.equal(stats[0].additions, 2);
-  assert.equal(stats[0].deletions, 1);
-  assert.equal(stats[1].file, "src/bar.ts");
-  assert.equal(stats[1].additions, 1);
-  assert.equal(stats[1].deletions, 0);
+  expect(stats.length).toBe(2);
+  expect(stats[0].file).toBe("src/foo.ts");
+  expect(stats[0].additions).toBe(2);
+  expect(stats[0].deletions).toBe(1);
+  expect(stats[1].file).toBe("src/bar.ts");
+  expect(stats[1].additions).toBe(1);
+  expect(stats[1].deletions).toBe(0);
 });
 
 test("parseDiffStats: handles diff --no-index for untracked files", () => {
@@ -313,13 +312,13 @@ test("parseDiffStats: handles diff --no-index for untracked files", () => {
   ].join("\n");
 
   const stats = parseDiffStats(diff);
-  assert.equal(stats.length, 1);
-  assert.equal(stats[0].file, "newfile.ts");
-  assert.equal(stats[0].additions, 3);
-  assert.equal(stats[0].deletions, 0);
+  expect(stats.length).toBe(1);
+  expect(stats[0].file).toBe("newfile.ts");
+  expect(stats[0].additions).toBe(3);
+  expect(stats[0].deletions).toBe(0);
 });
 
 test("parseDiffStats: returns empty array for empty diff", () => {
-  assert.deepEqual(parseDiffStats(""), []);
-  assert.deepEqual(parseDiffStats("   \n  "), []);
+  expect(parseDiffStats("")).toEqual([]);
+  expect(parseDiffStats("   \n  ")).toEqual([]);
 });
