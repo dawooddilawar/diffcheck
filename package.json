@@ -42,7 +42,7 @@
     "build:test": "tsc -p tsconfig.test.json",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
-    "test": "npm run build:test && node --test dist-test",
+    "test": "npm run build:test && node --test dist-test/test/*.test.js",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
