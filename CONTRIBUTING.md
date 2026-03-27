@@ -29,7 +29,7 @@ First off, thanks for taking the time to contribute! This project is a CLI tool 
 5. **Link for local testing**
    ```bash
    npm link
-   opencode-review --help
+   diffcheck --help
    ```
 
 ## Running Tests
@@ -121,7 +121,7 @@ Agents are auto-discovered from `agents/*.md` files. To add a new review dimensi
    npm run build
    npm test
    npm link
-   opencode-review --model ollama/qwen3:8b  # Test locally
+   diffcheck --model ollama/qwen3:8b  # Test locally
    ```
 
 3. **Commit** with clear messages

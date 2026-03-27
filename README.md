@@ -1,7 +1,7 @@
-# opencode-review
+# diffcheck
 
 [![CI](https://github.com/dawooddilawar/opencode-review/actions/workflows/ci.yml/badge.svg)](https://github.com/dawooddilawar/opencode-review/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/opencode-review.svg)](https://www.npmjs.com/package/opencode-review)
+[![npm version](https://badge.fury.io/js/diffcheck.svg)](https://www.npmjs.com/package/diffcheck)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 AI-powered code review CLI using [opencode](https://opencode.ai) with parallel focused agents.
@@ -44,42 +44,42 @@ opencode auth login
 ## Installation
 
 ```bash
-npm install -g opencode-review
+npm install -g diffcheck
 ```
 
 Or run without installing:
 
 ```bash
-npx opencode-review
+npx diffcheck
 ```
 
 ## Usage
 
 ```bash
 # Review staged changes (falls back to diff vs main)
-opencode-review
+diffcheck
 
 # Use a specific model
-opencode-review --model anthropic/claude-sonnet-4-20250514
-opencode-review --model ollama/qwen3:8b
+diffcheck --model anthropic/claude-sonnet-4-20250514
+diffcheck --model ollama/qwen3:8b
 
 # Compare against a different base branch
-opencode-review --base develop
+diffcheck --base develop
 
 # Lower confidence threshold to see more issues
-opencode-review --confidence 60
+diffcheck --confidence 60
 
 # Output as JSON (useful for CI artifacts)
-opencode-review --format json
+diffcheck --format json
 
 # Fail if issues found (for CI/CD)
-opencode-review --fail-on-issues
+diffcheck --fail-on-issues
 
 # Interactively change the default model
-opencode-review --set-model
+diffcheck --set-model
 
 # Show help
-opencode-review --help
+diffcheck --help
 ```
 
 ### Options
@@ -168,10 +168,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install opencode-review
-        run: npm install -g opencode-review
+      - name: Install diffcheck
+        run: npm install -g diffcheck
       - name: Run code review
-        run: opencode-review --format json > review.json
+        run: diffcheck --format json > review.json
         continue-on-error: true
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -179,7 +179,7 @@ jobs:
           name: code-review
           path: review.json
       - name: Fail on issues
-        run: opencode-review --fail-on-issues
+        run: diffcheck --fail-on-issues
 ```
 
 ### GitLab CI
@@ -188,8 +188,8 @@ jobs:
 code_review:
   stage: test
   script:
-    - npm install -g opencode-review
-    - opencode-review --format json > review.json
+    - npm install -g diffcheck
+    - diffcheck --format json > review.json
   artifacts:
     paths:
       - review.json
@@ -211,7 +211,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama pull qwen3:8b
 
 # Run code review
-opencode-review --model ollama/qwen3:8b
+diffcheck --model ollama/qwen3:8b
 ```
 
 > See [Ollama](https://ollama.com/download) for installation instructions.
@@ -221,13 +221,13 @@ opencode-review --model ollama/qwen3:8b
 Interactively pick a default model:
 
 ```bash
-opencode-review --set-model
+diffcheck --set-model
 ```
 
 Or save any combination of model, base branch, and confidence threshold:
 
 ```bash
-opencode-review --model ollama/qwen3:8b --base develop --confidence 70 --save-defaults
+diffcheck --model ollama/qwen3:8b --base develop --confidence 70 --save-defaults
 ```
 
 Saved defaults are stored in `.code-review.json` and can always be overridden per-run with explicit flags.
@@ -235,7 +235,7 @@ Saved defaults are stored in `.code-review.json` and can always be overridden pe
 ## File Structure
 
 ```
-opencode-review/
+diffcheck/
 ├── agents/               # Agent prompts — each .md file = one agent (auto-discovered)
 │   ├── security.md
 │   ├── correctness.md
@@ -282,7 +282,7 @@ Agents are auto-discovered from `agents/*.md` — no code changes required. To a
    }
    ```
 
-3. That's it. Run `opencode-review` and the new agent runs in parallel with all the others.
+3. That's it. Run `diffcheck` and the new agent runs in parallel with all the others.
 
 ### Removing an agent
 

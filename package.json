@@ -1,5 +1,5 @@
 {
-  "name": "opencode-review",
+  "name": "diffcheck",
   "version": "0.1.0",
   "description": "AI-powered code review CLI using parallel focused agents via opencode.ai",
   "author": "Dawood Dilawar <dawood@dawooddilawar.com>",
@@ -16,7 +16,7 @@
     "node": ">=20"
   },
   "bin": {
-    "opencode-review": "./dist/cli.js"
+    "diffcheck": "./dist/cli.js"
   },
   "files": [
     "dist",
