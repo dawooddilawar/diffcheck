@@ -1,6 +1,6 @@
 {
   "name": "diffcheck",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "AI-powered code review CLI using parallel focused agents via opencode.ai",
   "author": "Dawood Dilawar <dawood@dawooddilawar.com>",
   "license": "MIT",
@@ -45,9 +45,13 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "@types/cross-spawn": "^6.0.6",
     "@types/node": "^24.3.0",
     "eslint": "^8.57.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.6"
   }
 }

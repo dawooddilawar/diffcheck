@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import spawn from "cross-spawn";
 
 export type RunCommandOptions = {
   cwd: string;
@@ -27,7 +27,6 @@ export const defaultRunner: CommandRunner = async (cmd, args, opts) => {
       cwd: opts.cwd,
       env: opts.env,
       stdio: ["pipe", "pipe", "pipe"],
-      shell: process.platform === "win32",
     });
 
     let stdout = "";
