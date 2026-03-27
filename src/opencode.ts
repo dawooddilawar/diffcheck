@@ -57,6 +57,10 @@ export const defaultRunner: CommandRunner = async (cmd, args, opts) => {
           }, opts.timeoutMs)
         : null;
 
+    if (!child.stdout || !child.stderr || !child.stdin) {
+      throw new Error("Failed to open stdio streams for child process");
+    }
+
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", (d) => {
