@@ -56,7 +56,7 @@ npx opencode-review
 ## Usage
 
 ```bash
-# Review staged changes (falls back to diff vs develop)
+# Review staged changes (falls back to diff vs main)
 opencode-review
 
 # Use a specific model
@@ -64,7 +64,7 @@ opencode-review --model anthropic/claude-sonnet-4-20250514
 opencode-review --model ollama/qwen3:8b
 
 # Compare against a different base branch
-opencode-review --base main
+opencode-review --base develop
 
 # Lower confidence threshold to see more issues
 opencode-review --confidence 60
@@ -87,13 +87,14 @@ opencode-review --help
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|
 | `--model` | `-m` | `opencode/big-pickle` | LLM model to use |
-| `--base` | `-b` | `develop` | Base branch for diff comparison |
+| `--base` | `-b` | `main` | Base branch for diff comparison |
 | `--confidence` | `-c` | `80` | Minimum confidence threshold (0–100) |
 | `--verbose` | `-v` | `false` | Show detailed agent outputs for debugging |
 | `--deep` | | `false` | Deep mode: agents use tools to explore the codebase (slower) |
 | `--local-only` | | `false` | Review only local changes (staged + unstaged + untracked) |
 | `--fail-on-issues` | | `false` | Exit with non-zero code when issues found (for CI/CD) |
 | `--set-model` | | | Interactively select and save the default model |
+| `--save-defaults` | | | Save current `--model`, `--base`, `--confidence` as defaults |
 | `--format` | | `terminal` | Output format: `terminal`, `json`, `markdown` |
 | `--help` | `-h` | | Show help message |
 
@@ -170,7 +171,7 @@ jobs:
       - name: Install opencode-review
         run: npm install -g opencode-review
       - name: Run code review
-        run: opencode-review --format json --ci > review.json
+        run: opencode-review --format json > review.json
         continue-on-error: true
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -178,7 +179,6 @@ jobs:
           name: code-review
           path: review.json
       - name: Fail on issues
-        if: hashFiles('review.json') != ''
         run: opencode-review --fail-on-issues
 ```
 
@@ -189,7 +189,7 @@ code_review:
   stage: test
   script:
     - npm install -g opencode-review
-    - opencode-review --format json --ci > review.json
+    - opencode-review --format json > review.json
   artifacts:
     paths:
       - review.json
@@ -216,13 +216,21 @@ opencode-review --model ollama/qwen3:8b
 
 > See [Ollama](https://ollama.com/download) for installation instructions.
 
-### Changing the default model
+### Saving defaults
 
-You can change the saved default model at any time with the interactive picker:
+Interactively pick a default model:
 
 ```bash
 opencode-review --set-model
 ```
+
+Or save any combination of model, base branch, and confidence threshold:
+
+```bash
+opencode-review --model ollama/qwen3:8b --base develop --confidence 70 --save-defaults
+```
+
+Saved defaults are stored in `.code-review.json` and can always be overridden per-run with explicit flags.
 
 ## File Structure
 
@@ -237,11 +245,9 @@ opencode-review/
 │   ├── reliability.md
 │   ├── synthesizer.md    # Final deduplication & validation
 │   └── *.md              # Drop any new .md file here to add an agent
-├── bin/
-│   └── code-review       # Shell entry point → node dist/cli.js
-├── src/                  # TypeScript source
+├── src/                  # TypeScript source (dist/cli.js is the bin entry point)
 ├── test/                 # Unit tests
-├── .code-review.json     # Saved user preferences (default model, etc.)
+├── .code-review.json     # Saved defaults (model, base branch, confidence)
 └── package.json
 ```
 
