@@ -1,6 +1,6 @@
 # diffcheck
 
-[![CI](https://github.com/dawooddilawar/opencode-review/actions/workflows/ci.yml/badge.svg)](https://github.com/dawooddilawar/opencode-review/actions/workflows/ci.yml)
+[![CI](https://github.com/dawooddilawar/diffcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/dawooddilawar/diffcheck/actions/workflows/ci.yml)
 [![npm version](https://badge.fury.io/js/diffcheck.svg)](https://www.npmjs.com/package/diffcheck)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

@@ -6,11 +6,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dawooddilawar/opencode-review"
+    "url": "https://github.com/dawooddilawar/diffcheck"
   },
-  "homepage": "https://github.com/dawooddilawar/opencode-review#readme",
+  "homepage": "https://github.com/dawooddilawar/diffcheck#readme",
   "bugs": {
-    "url": "https://github.com/dawooddilawar/opencode-review/issues"
+    "url": "https://github.com/dawooddilawar/diffcheck/issues"
   },
   "engines": {
     "node": ">=20"
