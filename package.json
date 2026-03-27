@@ -1,6 +1,6 @@
 {
   "name": "diffcheck",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "AI-powered code review CLI using parallel focused agents via opencode.ai",
   "author": "Dawood Dilawar <dawood@dawooddilawar.com>",
   "license": "MIT",

@@ -10,6 +10,7 @@ export type ParsedArgs = {
   baseBranch: string;
   confidenceThreshold: number;
   verbose: boolean;
+  debug: boolean;
   format: OutputFormat;
   reviewMode: ReviewMode;
   localOnly: boolean;
@@ -27,6 +28,7 @@ const DEFAULTS: ParsedArgs = {
   baseBranch: DEFAULT_BASE_BRANCH,
   confidenceThreshold: DEFAULT_CONFIDENCE_THRESHOLD,
   verbose: false,
+  debug: false,
   format: "terminal",
   reviewMode: "shallow",
   localOnly: false,
@@ -79,6 +81,10 @@ export function parseArgs(argv: string[]): ParsedArgs {
       case "-v":
       case "--verbose": {
         out.verbose = true;
+        break;
+      }
+      case "--debug": {
+        out.debug = true;
         break;
       }
       case "--format": {

@@ -7,6 +7,8 @@ export type RunCommandOptions = {
   stdin?: string;
   /** Kill the process immediately if any of these patterns match in stdout or stderr. */
   killOnPatterns?: RegExp[];
+  onStdout?: (chunk: string) => void;
+  onStderr?: (chunk: string) => void;
 };
 
 export type RunCommandResult = {
@@ -64,11 +66,14 @@ export const defaultRunner: CommandRunner = async (cmd, args, opts) => {
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", (d) => {
-      stdout += String(d);
+      const chunk = String(d);
+      stdout += chunk;
+      opts.onStdout?.(chunk);
     });
     child.stderr.on("data", (d) => {
       const chunk = String(d);
       stderr += chunk;
+      opts.onStderr?.(chunk);
       checkKillPatterns(chunk);
     });
 
@@ -102,14 +107,23 @@ export type RunOpencodeParams = {
   timeoutMs: number;
   runner?: CommandRunner;
   killOnPatterns?: RegExp[];
+  onStdout?: (chunk: string) => void;
+  onStderr?: (chunk: string) => void;
 };
 
 export async function runOpencode(params: RunOpencodeParams): Promise<RunCommandResult> {
   const runner = params.runner ?? defaultRunner;
   return await runner(
     "opencode",
-    ["run", "--model", params.model, params.prompt],
-    { cwd: params.cwd, timeoutMs: params.timeoutMs, killOnPatterns: params.killOnPatterns },
+    ["run", "--model", params.model],
+    {
+      cwd: params.cwd,
+      timeoutMs: params.timeoutMs,
+      killOnPatterns: params.killOnPatterns,
+      stdin: params.prompt,
+      onStdout: params.onStdout,
+      onStderr: params.onStderr,
+    },
   );
 }
 

@@ -40,6 +40,7 @@ Options:
   -b, --base BRANCH         Base branch for diff (default: ${DEFAULT_BASE_BRANCH})
   -c, --confidence NUM      Minimum confidence threshold 0-100 (default: ${DEFAULT_CONFIDENCE_THRESHOLD})
   -v, --verbose             Show detailed agent outputs for debugging
+      --debug               Stream raw agent stdout/stderr live as it runs
       --deep                Deep mode: agents use tools to explore the codebase (slower)
       --local-only          Review only local changes (staged + unstaged + untracked),
                             skip committed branch changes
@@ -301,6 +302,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       mode: args.reviewMode,
       timeoutMsPerAgent,
       verbose: args.verbose,
+      debug: args.debug,
       onAgentStart: (agent) => {
         if (isTerminal) {
           process.stderr.write(`  ${agentIcon(agent)} ${tc(T_DIM, agent.padEnd(12))} ${tc(T_DIM, "running…")}\n`);

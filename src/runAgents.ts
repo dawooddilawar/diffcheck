@@ -18,6 +18,7 @@ export type RunAgentsOptions = {
   timeoutMsPerAgent: number;
   runner?: CommandRunner;
   verbose?: boolean;
+  debug?: boolean;
   onAgentStart?: (agent: AgentName) => void;
   onAgentDone?: (result: AgentRunResult) => void;
 };
@@ -100,6 +101,7 @@ export async function runAgents(opts: RunAgentsOptions): Promise<AgentRunResult[
     const startTimeMs = Date.now();
     const fullPrompt = buildFullPrompt(prompts[i]!, opts.diff, opts.mode);
 
+    const debugPrefix = `[${agent}] `;
     const res = await runOpencode({
       cwd: opts.cwd,
       model: opts.model,
@@ -107,6 +109,8 @@ export async function runAgents(opts: RunAgentsOptions): Promise<AgentRunResult[
       timeoutMs: opts.timeoutMsPerAgent,
       runner: opts.runner,
       killOnPatterns: API_ERROR_PATTERNS,
+      onStdout: opts.debug ? (chunk) => process.stderr.write(debugPrefix + chunk) : undefined,
+      onStderr: opts.debug ? (chunk) => process.stderr.write(debugPrefix + chunk) : undefined,
     });
 
     const parsed = extractIssues(res.stdout);
